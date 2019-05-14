@@ -79,6 +79,182 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
     }
 
     /**
+     * Get style attribute of given tag string
+     * @param string $string
+     */
+    function get_style_value($string=''){
+        preg_match('/style="(.+?)"/', $string, $input);
+        return $input[1];
+    }
+    
+    /**
+     * Get Id attribute of given tag string
+     * @param string $string
+     */
+    function get_id_value($string=''){
+        preg_match('/id="(.+?)"/', $string, $input);
+        return $input[1];
+    }
+    /**
+     * Get custom attribute's of given tag string
+     * @param string $string
+     */
+    function get_custom_attr($string=''){
+    
+        $common_tags = array('id','class','style','type','value','name','src','href',
+                             );
+        $pattern = '/(\w+-\w+|\w+)=[\'"]([^\'"]*)/';
+        preg_match_all($pattern,$string,$matches,PREG_SET_ORDER);
+    
+        $result = [];
+        foreach($matches as $match){
+            $attrName = $match[1];
+    
+            //parse the string value into an integer if it's numeric,
+            // leave it as a string if it's not numeric,
+            $attrValue = is_numeric($match[2])? (int)$match[2]: trim($match[2]);
+    
+            $result[$attrName] = $attrValue; //add match to results
+        }
+        $custome_attributes = array_values(array_diff(array_keys($result),$common_tags));
+        $cust = array();
+        foreach($custome_attributes as $val){
+            $cust[$val] = $result[$val];
+        }
+    
+        return $cust;
+    
+    }
+    
+    /**
+     * Convert headings tags to gutenberg block with style,id and custom attributes
+     * @param string $seperator
+     * @param string $content
+     * @param string $level
+     */
+    function convert_heading_tags($seperator='',$content='',$level=''){
+        
+        $exp_separator = "<".$seperator;
+        $str = explode($exp_separator,$content);
+        $i = 0;
+        $tags = array();
+        foreach ( $str as $s ) {
+                if($s !== '' ) {
+                $tags[$i] = $exp_separator.$s;
+                }
+                $i++;    
+        }
+        $temp_string_store = '';
+            foreach($tags as $tag){
+               
+                $style = get_style_value($tag);
+                $id = get_id_value($tag);
+                $custom_attr = get_custom_attr($tag);
+                $custom_attr_string_json = '';
+                $c_a_s = '';
+                $i = 1;
+                if(is_array($custom_attr) && !empty($custom_attr)){
+                    foreach($custom_attr as $key => $ca){
+                    $custom_attr_string_json .= '"'.$key.'"="'.$ca.'" '; 
+                    $c_a_s .=  $key.'='.$ca;
+                    if(count($custom_attr) !== $i) {
+                        $c_a_s .=  ',';
+                    }
+                    $tag = str_replace($key.'="'.$ca.'"',"",$tag);
+                    $i++;
+    
+    
+                    }
+                }  
+                
+                $i = 0;
+    
+                 
+            $tag_str = str_replace('<'.$seperator,'<'.$seperator.' custom_attributes="'.$c_a_s.'"',$tag);
+          
+            if($style!=='' || $id!=='' || $c_a_s !=='') {
+    
+                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.',"style":"'.$style.'","id":"'.$id.'","custom_attributes":"'.$c_a_s.'"} -->'.'<'.$seperator, $tag_str);
+                
+            }else{
+                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.'} -->'.'<'.$seperator, $tag_str);
+            }
+            
+            $tag_str = str_replace("</".$seperator.">", '</'.$seperator.'><!-- /wp:heading -->',$tag_str);
+            
+            $temp_string_store .= $tag_str;
+            
+            }
+            
+            return $temp_string_store;
+    }
+    
+
+    /**
+     * Convert Table tag to gutenberg block with style,id and custom attributes
+     * @param string $seperator
+     * @param string $content
+     */
+
+    function convert_table($seperator='',$content=''){
+        
+        $exp_separator = "<".$seperator;
+        $str = explode($exp_separator,$content);
+        $i = 0;
+        $tags = array();
+        foreach ( $str as $s ) {
+                if($s !== '' ) {
+                $tags[$i] = $exp_separator.$s;
+                }
+                $i++;    
+        }
+        $temp_string_store = '';
+            foreach($tags as $tag){
+               
+                $style = get_style_value($tag);
+                $id = get_id_value($tag);
+                $custom_attr = get_custom_attr($tag);
+                $custom_attr_string_json = '';
+                $c_a_s = '';
+                $i = 1;
+                if(is_array($custom_attr) && !empty($custom_attr)){
+                    foreach($custom_attr as $key => $ca){
+                    $custom_attr_string_json .= '"'.$key.'"="'.$ca.'" '; 
+                    $c_a_s .=  $key.'='.$ca;
+                    if(count($custom_attr) !== $i) {
+                        $c_a_s .=  ',';
+                    }
+                    $tag = str_replace($key.'="'.$ca.'"',"",$tag);
+                    $i++;
+    
+    
+                    }
+                }  
+                
+                $i = 0;
+    
+                 
+            $tag_str = str_replace('<'.$seperator,'<'.$seperator.' class="wp-block-table" custom_attributes="'.$c_a_s.'"',$tag);
+         
+            if($style!=='' || $id!=='' || $c_a_s !=='') {
+    
+                $tag_str = str_replace("<".$seperator, '<!-- wp:table {"style":"'.$style.'","id":"'.$id.'","custom_attributes":"'.$c_a_s.'"} -->'.'<'.$seperator, $tag_str);
+                
+            }else{
+                $tag_str = str_replace("<".$seperator, '<!-- wp:table  -->'.'<'.$seperator, $tag_str);
+            }
+            
+            $tag_str = str_replace("</".$seperator.">", '</'.$seperator.'><!-- /wp:table -->',$tag_str);
+           
+            $temp_string_store .= $tag_str;
+            
+            }
+            
+            return $temp_string_store;
+    }
+
+
+    /**
      * Convert classic element to block
      * @param string $content
      * @param int $post_id
@@ -114,9 +290,9 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 foreach ($sections as $section) {
                     $sclass = $section->getAttribute('class');
                     if (!empty($sclass)) {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center ' . $sclass;
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center ' . $sclass;
                     } else {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center';
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center';
                     }
                 }
                 $content = $dom->saveHTML();
@@ -129,9 +305,9 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 foreach ($headers as $header) {
                     $sclass = $header->getAttribute('class');
                     if (!empty($sclass)) {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center ' . $sclass;
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center ' . $sclass;
                     } else {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center';
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center';
                     }
                     $header->setAttribute('class', $classToAdd);
                 }
@@ -227,17 +403,17 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     }
 
                     if (!empty($dclass)) {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center ' . $dclass;
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center ' . $dclass;
                     } else {
-                        $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center';
+                        $classToAdd = 'wp-block-md-multipurpose-block is-block-center';
                     }
 
                     $div->setAttribute('class', $classToAdd);
 
                     if (!empty($div_id)) {
-                        $comment = $dom->createComment(' wp:md/multipurpose-gutenberg-block {"elementID": "' . $div_id . '"} ');
+                        $comment = $dom->createComment(' wp:md/multipurpose-block {"elementID": "' . $div_id . '"} ');
                     } else {
-                        $comment = $dom->createComment(' wp:md/multipurpose-gutenberg-block ');
+                        $comment = $dom->createComment(' wp:md/multipurpose-block ');
                     }
                     $div->parentNode->insertBefore($comment, $div);
                 }
@@ -266,17 +442,17 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = $contentArr[0];
                 }
                 if (strpos($content, '<div') !== false) {
-                    $content = str_replace('</div>', '</div><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
+                    $content = str_replace('</div>', '</div><!-- /wp:md/multipurpose-block -->', $content);
                 }
 
                 if (strpos($content, '<section') !== false) {
-                    $content = str_replace('<section', '<!-- wp:md/multipurpose-gutenberg-block {"ElementTag":"section"} --> <section', $content);
-                    $content = str_replace('</section>', '</section><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
+                    $content = str_replace('<section', '<!-- wp:md/multipurpose-block {"ElementTag":"section"} --> <section', $content);
+                    $content = str_replace('</section>', '</section><!-- /wp:md/multipurpose-block -->', $content);
                 }
 
                 if (strpos($content, '<header') !== false) {
-                    $content = str_replace('<header', '<!-- wp:md/multipurpose-gutenberg-block {"ElementTag":"header"} --> <header', $content);
-                    $content = str_replace('</header>', '</header><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
+                    $content = str_replace('<header', '<!-- wp:md/multipurpose-block {"ElementTag":"header"} --> <header', $content);
+                    $content = str_replace('</header>', '</header><!-- /wp:md/multipurpose-block -->', $content);
                 }
 
                 if (strpos($content, '<script') !== false) {
