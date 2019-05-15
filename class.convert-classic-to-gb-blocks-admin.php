@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Exit if accessed directly
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit();
+}
+
 class CCETGB_Admin_Settings {
 
     private static $initiated = false;

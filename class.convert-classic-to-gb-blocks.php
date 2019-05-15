@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Exit if accessed directly
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit();
+}
+
 Class CCETGB_Convert_Classic_to_GB_Blocks {
 
     /**
@@ -53,9 +61,11 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
             self::ccetgb_convert_classic_post_to_gb_blocks($post->post_content, $new_post_id);
 
             $taxonomies = get_object_taxonomies($post->post_type);
-            foreach ($taxonomies as $taxonomy) {
-                $post_terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs'));
-                wp_set_object_terms($new_post_id, $post_terms, $taxonomy, false);
+            if ( !empty( $taxonomies ) && $taxonomies > 0 ) {
+                foreach ($taxonomies as $taxonomy) {
+                    $post_terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs'));
+                    wp_set_object_terms($new_post_id, $post_terms, $taxonomy, false);
+                }
             }
 
             $meta_blacklist = array("_wp_page_template", "_edit_lock", "_edit_last");
@@ -374,7 +384,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     foreach ($image_urls as $image_url => $value) {
                         $alt = !empty($img_src_alt_arr[$value]) ? $img_src_alt_arr[$value] : '-';
                         $img_id = self::ccetgb_upload_remote_image_attach($value, $post_id);
-                        $content = preg_replace($image_url, '!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . $value . '" alt="' . $alt . '" class="wp-image-' . $img_id . '"/></figure><!-- /wp:image --', $content);
+                        $content = preg_replace($image_url, '!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . esc_url($value) . '" alt="' . esc_attr($alt) . '" class="wp-image-' . esc_attr($img_id) . '"/></figure><!-- /wp:image --', $content);
                     }
                 }
 
