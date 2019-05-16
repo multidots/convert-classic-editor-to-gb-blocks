@@ -10,10 +10,10 @@ Welcome to the GB Script Plugin repository on GitHub. Get a dive into the source
 
 ## Why we Started 
 
-We realized that people in our WordPress community are facing issue to migrate to the Gutenberg WordPress Update. They have thousands of posts in the Classic Editor and they cant find any solution to convert all posts into Gutenberg easily. 💭
+We realized that people in our WordPress community, people are facing issues to migrate their websites to the Gutenberg version of WordPress. They have thousands of posts in the Classic Editor and they cant find any solution to convert all posts into Gutenberg easily. 💭
 
 Even on the official Gutenberg support, a ticket with the same issue has been closed by mentioning Classic to Gutenberg conversion is not possible yet. 💡 That was the moment when we thought to help community by developing such script which automatically does this job.
-And we are here 🤗
+And we are here with the “GB Script”. 🤗
 
 Let's have a look at how to use this plugin.
 
@@ -61,6 +61,8 @@ This plugin requires [Multipurpose Gutenberg Block](https://wordpress.org/plugin
 
 
 ## How to Contribute 
+
+As this plugin is free and for community’s sake only, contributions from community is also expected.
 
 - Create 'fork' of this repository to your account(you will get this option at top right of this page);
 - Create branch into your fork repository like `development` if it exists else from master.
