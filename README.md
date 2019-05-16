@@ -8,9 +8,9 @@
 
 Welcome to the GB Script Plugin repository on GitHub. Get a dive into the source, open issues and contribute! This plugin is useful to convert your Classic Editor Post/Page to Gutenberg Blocks automatically!
 
-## Why we Started 💭
+## Why we Started 
 
-We realized that people in our WordPress community are facing issue to migrate to the Gutenberg WordPress Update. They have thousands of posts in the Classic Editor and they cant find any solution to convert all posts into Gutenberg easily.
+We realized that people in our WordPress community are facing issue to migrate to the Gutenberg WordPress Update. They have thousands of posts in the Classic Editor and they cant find any solution to convert all posts into Gutenberg easily. 💭
 
 Even on the official Gutenberg support, a ticket with the same issue has been closed by mentioning Classic to Gutenberg conversion is not possible yet. 💡 That was the moment when we thought to help community by developing such script which automatically does this job.
 And we are here 🤗
@@ -35,11 +35,11 @@ A new clone of post/page will be created as a draft and converted into the Guten
 
 If you like the new draft, just copy and use the title and slug from the Original post to the new Gutenberg post and delete the original post. You can now publish your new Gutenberg post.
 
-## Supported Tags ✔️
+## Supported Tags 
 
 The following HTML Tags are supported in this Plugin. These HTML tags will be converted from Classic to Gutenberg.
 
-Supported Tags |
+Supported Tags ✔️ |
 ----- |
 `<p>`  |
 `<div>` |
@@ -55,12 +55,12 @@ Supported Tags |
 `<blockquote>` |
 
 
-## Minimum Requirement 📌
+## Minimum Requirement 
 
 This plugin requires [Multipurpose Gutenberg Block](https://wordpress.org/plugins/multipurpose-block/) plugin.
 
 
-## How to Contribute ✍️
+## How to Contribute 
 
 - Create 'fork' of this repository to your account(you will get this option at top right of this page);
 - Create branch into your fork repository like `development` if it exists else from master.
@@ -70,7 +70,7 @@ This plugin requires [Multipurpose Gutenberg Block](https://wordpress.org/plugin
 - And Finally click `Pull Request` from your fork repository.
 - This [github article](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) will helpful for how to submit pull request from the fork.
 
-## Support 🙏
+## Support 
 This repository is not for the support. Please use it for GB Script core issues only. To get help/support, please contact through these channels:
 
 * The [GB Script Help Desk](#).
@@ -78,12 +78,12 @@ This repository is not for the support. Please use it for GB Script core issues 
 
 Help/Support requests as issues on this repository will be closed.
 
-## Future Planning 🎯
+## Future Planning 
 
-We are planning to add more and more complex blocks to cover and easily convertible through the GB Script. Keep updated on the releases.
+We are planning to add more and more complex blocks to cover and easily convertible through the GB Script. Keep updated on the releases. 
 
 Looking forward to your love ❤️ and support through your valuable contribution.
 
-## License 🔰
+## License 
 
 [MIT](LICENSE) © 2019 Multidots
