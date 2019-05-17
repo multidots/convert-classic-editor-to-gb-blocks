@@ -1,4 +1,4 @@
-<p align="center"><a href="#"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9pLRtO05PaBPP38tfi8Gh10sMswfMtaawL0rcQIxpliJj82CB" alt="GB Script"></a></p>
+<p align="center"><a href="#"><img src="https://user-images.githubusercontent.com/25176325/57924321-75643200-78c2-11e9-9ad6-7255acff3cf5.png" alt="GB Script"></a></p>
 
 # Convert Classic Editor to Gutenberg Blocks
 
