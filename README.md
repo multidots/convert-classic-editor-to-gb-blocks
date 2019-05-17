@@ -102,4 +102,4 @@ Looking forward to your love ❤️ and support through your valuable contributi
 
 ## License 
 
-[MIT](LICENSE) © 2019 Multidots
+[GNU](LICENSE) © 2019 Multidots
