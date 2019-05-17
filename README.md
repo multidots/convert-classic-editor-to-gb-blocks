@@ -84,7 +84,7 @@ As this plugin is free and for community’s sake only, contributions from commu
 ## Support 
 This repository is not for the support. Please use it for GB Script core issues only. To get help/support, please contact through these channels:
 
-* The [GB Script Help Desk](#).
+* The GB Script [Help Desk](#).
 * Email us at [help@multidots.com](mailto:help@multidots.com)
 
 Help/Support requests as issues on this repository will be closed.
