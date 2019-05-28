@@ -181,6 +181,118 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
 
  }
 
+/**
+     * Get style attribute of given tag string
+     * @param string $string
+     */
+    function ccetgb_get_style_value($string=''){
+        preg_match('/style="(.+?)"/', $string, $input);
+        return $input[1];
+    }
+    
+    /**
+     * Get Id attribute of given tag string
+     * @param string $string
+     */
+    function ccetgb_get_id_value($string=''){
+        preg_match('/id="(.+?)"/', $string, $input);
+        return $input[1];
+    }
+    /**
+     * Get custom attribute's of given tag string
+     * @param string $string
+     */
+    function ccetgb_get_custom_attr($string=''){
+    
+        $common_tags = array('id','class','style','type','value','name','src','href',
+                             );
+        $pattern = '/(\w+-\w+|\w+)=[\'"]([^\'"]*)/';
+        preg_match_all($pattern,$string,$matches,PREG_SET_ORDER);
+    
+        $result = [];
+        foreach($matches as $match){
+            $attrName = $match[1];
+    
+            //parse the string value into an integer if it's numeric,
+            // leave it as a string if it's not numeric,
+            $attrValue = is_numeric($match[2])? (int)$match[2]: trim($match[2]);
+    
+            $result[$attrName] = $attrValue; //add match to results
+        }
+        $custome_attributes = array_values(array_diff(array_keys($result),$common_tags));
+        $cust = array();
+        foreach($custome_attributes as $val){
+            $cust[$val] = $result[$val];
+        }
+    
+        return $cust;
+    
+    }
+
+  /**
+     * Convert headings tags to gutenberg block with style,id and custom attributes
+     * @param string $seperator
+     * @param string $content
+     * @param string $level
+     */
+    function ccetgb_convert_heading_tags($seperator='',$content='',$level=''){
+        
+        $exp_separator = "<".$seperator;
+        $str = explode($exp_separator,$content);
+        $i = 0;
+        $tags = array();
+        foreach ( $str as $s ) {
+                if($s !== '' ) {
+                $tags[$i] = $exp_separator.$s;
+                }
+                $i++;    
+        }
+        $temp_string_store = '';
+            foreach($tags as $tag){
+               
+                $style = self::ccetgb_get_style_value($tag);
+                $id = self::ccetgb_get_id_value($tag);
+                $custom_attr = self::ccetgb_get_custom_attr($tag);
+                $custom_attr_string_json = '';
+                $c_a_s = '';
+                $i = 1;
+                if(is_array($custom_attr) && !empty($custom_attr)){
+                    foreach($custom_attr as $key => $ca){
+                    $custom_attr_string_json .= '"'.$key.'"="'.$ca.'" '; 
+                    $c_a_s .=  $key.'='.$ca;
+                    if(count($custom_attr) !== $i) {
+                        $c_a_s .=  ',';
+                    }
+                    $tag = str_replace($key.'="'.$ca.'"',"",$tag);
+                    $i++;
+    
+    
+                    }
+                }  
+                
+                $i = 0;
+    
+                 
+            $tag_str = str_replace('<'.$seperator,'<'.$seperator.' custom_attributes="'.$c_a_s.'"',$tag);
+          
+            if($style!=='' || $id!=='' || $c_a_s !=='') {
+    
+                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.',"style":"'.$style.'","id":"'.$id.'","custom_attributes":"'.$c_a_s.'"} -->'.'<'.$seperator, $tag_str);
+                
+            }else{
+                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.'} -->'.'<'.$seperator, $tag_str);
+            }
+            
+            $tag_str = str_replace("</".$seperator.">", '</'.$seperator.'><!-- /wp:heading -->',$tag_str);
+            
+            $temp_string_store .= $tag_str;
+            
+            }
+            
+            return $temp_string_store;
+    }
+
+
     /**
      * Convert classic element to block
      * @param string $content
@@ -415,28 +527,28 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<h1') !== false) {
-                    $content = str_replace('<h1', '<!-- wp:heading {"level":1} --><h1', $content);
-                    $content = str_replace("</h1>", '</h1><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h1",$content,'1');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<h2') !== false) {
-                    $content = str_replace('<h2', '<!-- wp:heading --><h2', $content);
-                    $content = str_replace("</h2>", '</h2><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h2",$content,'2');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<h3') !== false) {
-                    $content = str_replace('<h3', '<!-- wp:heading {"level":3} --><h3', $content);
-                    $content = str_replace("</h3>", '</h3><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h3",$content,'3');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<h4') !== false) {
-                    $content = str_replace('<h4', '<!-- wp:heading {"level":4} --><h4', $content);
-                    $content = str_replace("</h4>", '</h4><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h4",$content,'4');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<h5') !== false) {
-                    $content = str_replace('<h5', '<!-- wp:heading {"level":5} --><h5', $content);
-                    $content = str_replace("</h5>", '</h5><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h5",$content,'5');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<h6') !== false) {
-                    $content = str_replace('<h6', '<!-- wp:heading {"level":6} --><h6', $content);
-                    $content = str_replace("</h6>", '</h6><!-- /wp:heading -->', $content);
+                    $converted_tag = self::ccetgb_convert_heading_tags("h6",$content,'6');
+                    $content = $converted_tag;
                 }
                 if (strpos($content, '<ul') !== false) {
                     $content = str_replace('<ul', '<!-- wp:list --><ul', $content);
