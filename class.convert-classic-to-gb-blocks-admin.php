@@ -19,7 +19,9 @@ class CCETGB_Admin_Settings {
         add_action( 'admin_notices', array( __CLASS__, 'ccetgb_admin_notice' ) );
         add_action( 'admin_menu', array( __CLASS__, 'ccetgb_add_settings_options_page' ) );
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'ccetgb_enqueque_style' ) );
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'ccetgb_enqueque_scripts' ) );
         add_action( 'admin_init', array(__CLASS__,'ccetgb_redirect_to_welcome_screen') );
+        add_action( 'enqueue_block_assets', array(__CLASS__,'ccetgb_block_editor_assets'));
     }
 
     /**
@@ -66,6 +68,41 @@ class CCETGB_Admin_Settings {
     }
 
     /**
+     * Enqueque scripts for admin
+     */
+    public static function ccetgb_enqueque_scripts() {
+       
+        wp_enqueue_script(
+            'ccetgb_block_js', // Unique handle.
+            plugins_url( 'assets/js/block.build.js', __FILE__ ), // block.js: We register the block here.
+            array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor', 'wp-components' ) // Dependencies, defined above.
+        );
+        
+        
+    }
+
+   /**
+     * Enqueque scripts for frontEnd
+     */
+    public static function ccetgb_block_editor_assets(){
+        if(!is_admin()){
+        wp_enqueue_script(
+            'ccetgb_jquery_js', // Unique handle.
+            plugins_url( 'assets/js/jquery-2.2.4.min.js', __FILE__ )
+        );
+        wp_enqueue_script(
+            'ccetgb_custom_js', // Unique handle.
+            plugins_url( 'assets/js/custom.js', __FILE__ )
+        );
+        
+    }
+}
+    
+
+   
+    
+
+    /**
      * Display success message on converted draft post
      */
     public static function ccetgb_admin_notice() {
@@ -79,6 +116,7 @@ class CCETGB_Admin_Settings {
                 );
             }
         }
+        
     }
 
     /**
@@ -141,6 +179,9 @@ class CCETGB_Admin_Settings {
 
         return wp_nonce_url( apply_filters( 'ccetgb_create_clone_post_link', admin_url( "admin.php". $action ), $post->ID, 'display' ), 'ccetgb_clone_post_' . $post->ID );
     }
+
+
+
 
 
     /**
