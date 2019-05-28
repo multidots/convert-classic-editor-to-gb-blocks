@@ -249,9 +249,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
         }
         $temp_string_store = '';
             foreach($tags as $tag){
-               
-                $style = self::ccetgb_get_style_value($tag);
-                $id = self::ccetgb_get_id_value($tag);
+                
                 $custom_attr = self::ccetgb_get_custom_attr($tag);
                 $custom_attr_string_json = '';
                 $c_a_s = '';
@@ -275,9 +273,9 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                  
             $tag_str = str_replace('<'.$seperator,'<'.$seperator.' custom_attributes="'.$c_a_s.'"',$tag);
           
-            if($style!=='' || $id!=='' || $c_a_s !=='') {
+            if($c_a_s !=='') {
     
-                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.',"style":"'.$style.'","id":"'.$id.'","custom_attributes":"'.$c_a_s.'"} -->'.'<'.$seperator, $tag_str);
+                $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.',"custom_attributes":"'.$c_a_s.'"} -->'.'<'.$seperator, $tag_str);
                 
             }else{
                 $tag_str = str_replace("<".$seperator, '<!-- wp:heading {"level":'.$level.'} -->'.'<'.$seperator, $tag_str);
