@@ -46,23 +46,12 @@ If you like the new draft, just copy and use the title and slug from the Origina
 
 The following HTML Tags are supported in this Plugin. These HTML tags will be converted from Classic to Gutenberg.
 
-Supported Tags ✔️ |
------ |
-`<p>`  |
-`<div>` |
-`<img>` |
-`<h1>` |
-`<header>` |
-`<section>` |
-`<ul>` |
-`<li>` |
-`<ol>` |
-`<pre>` |
-`<table>` |
-`<blockquote>` |
-`<style>` |
-`<script>` |
-Many more.. |
+| Supported Tags ✔️  |    |         |      |      |
+|:--------------:|-------|---------|------|------|
+| `<div>`         | `<img>` | `<table>` | `<h1>` | `<h1>` |
+| `<h2>`           | `<h3>`  | `<h4>`    | `<h5>` | `<h6>` |
+| `<ul>` | `<li>` | `<ol>` | `<header>` | `<section>` |
+| `<pre>` | `<blockquote>` | `<style>` | `<script>`  |  `Many more to come..` |
 
 ## Minimum Requirement 
 
