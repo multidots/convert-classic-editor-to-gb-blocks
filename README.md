@@ -11,8 +11,6 @@ Welcome to the GB Script Plugin repository on GitHub. Get a dive into the source
 
 The Gutenberg was officially announced as a part of WordPress core with the v.5.0 "Bebo" [release](https://wordpress.org/news/2018/12/bebo/) on December 6, 2018. Since this release, if earlier version websites need to update to Guttenberg version, they have to convert posts into Gutenberg Blocks. The complex content from classic editor require a custom blocks to be built for successful conversion. 💭
 
-Even the Gutenberg is not (yet) providing “Classic to Gutenberg conversion” facility. 💡 This is what pushed us to help community by developing such script which automatically does this job. 
-And we are here with the “GB Script”. 🤗
 
 Let's have a look at how to use this plugin.
 
