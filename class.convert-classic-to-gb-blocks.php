@@ -88,6 +88,150 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
         }
     }
 
+
+    /**
+     * Get src attribute of given tag string
+     * @param string $string
+     */
+    function ccetgb_get_src_value($string=''){
+        preg_match('/src="(.+?)"/', $string, $input);
+        return $input[1];
+    }
+    /**
+     * get iframe content and convert it to respective embed blocks
+     * @param string $content
+     */
+ function ccetgb_convert_iframe($content=''){
+        $src = self::ccetgb_get_src_value($content);
+        $embed_provider = self::ccetgb_filter_iframeProvider($src);
+        $convert_content = self::ccetgb_convert_provider($embed_provider,$content);
+       return $convert_content;
+ }
+    /**
+     * get iframe src and find provider and other details
+     * @param string $src
+     */
+ function ccetgb_filter_iframeProvider($src=''){
+    $provider = '';
+    $type = '';
+    $provider_slug = '';
+  
+    $result = [];
+   if($src!==''){
+    
+    if(strpos($src,"youtube")){
+        $provider = 'youtube'; 
+        $type = 'video';
+        $src = str_replace("embed/","watch?v=",$src);
+        $provider_slug = 'youtube';
+       
+       
+    }elseif(strpos($src,"vimeo")){
+         $provider = 'vimeo';
+         $type = 'video';
+         $src = str_replace("player.vimeo.com/video/","vimeo.com/",$src);
+         $provider_slug = 'vimeo';
+    
+    }elseif(strpos($src,"facebook")){
+         $provider = 'facebook';
+         $type = 'rich';
+         $src = str_replace("https://www.facebook.com/plugins/post.php?href=","",$src);
+         $src = rawurldecode($src);
+         $provider_slug = 'facebook';
+    }elseif(strpos($src,"videopress")){
+        $provider = 'videopress';
+        $type = 'video';
+        $src = str_replace("embed/","v/",$src);
+        $src = rawurldecode($src);
+        $provider_slug = 'videopress';
+   }elseif(strpos($src,"dailymotion")){
+        $provider = 'dailymotion';
+        $type = 'video';
+        $src = str_replace("embed/","",$src);
+        $src = rawurldecode($src);
+        $provider_slug = 'dailymotion';
+
+   }else{
+        $provider = 'wordpress';
+        $type = 'wp-embed';
+        $src = rawurldecode($src);
+        $provider_slug = 'plugin-directory';
+        
+   }
+
+        $result['type'] = $type; 
+        $result['provider'] = $provider;
+        $result['src'] = $src;
+        $result['provider-slug'] = $provider_slug;
+
+   return $result;
+    
+ }
+}
+    /**
+     * generate iframe embed block code
+     * @param array $embed_provider
+     * @param string $content
+     */
+ function ccetgb_convert_provider($embed_provider=array(),$content=''){
+
+    if(!empty($embed_provider)){
+        
+        $temp_string_store = '';
+        $tag_str = '<!-- wp:core-embed/'.$embed_provider['provider'].' {"url":"'.$embed_provider['src'].'","type":"'.$embed_provider['type'].'","providerNameSlug":"'.$embed_provider['provider-slug'].'","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --><figure class="wp-block-embed-'.$embed_provider['provider'].' wp-block-embed is-type-'.$embed_provider['type'].' is-provider-'.$embed_provider['provider-slug'].' is-is-provider-'.$embed_provider['provider-slug'].' provider-'.$embed_provider['provider'].' wp-embed-aspect-16-9 wp-has-aspect-ratio">
+        <div class="wp-block-embed__wrapper">'.$embed_provider['src'].' </div> </figure><!-- /wp:core-embed/'.$embed_provider['provider'].' -->';
+        $tag_str = str_replace('<!-- wp:paragraph --> <p>','',$tag_str);
+        $tag_str = str_replace('</p><!-- /wp:paragraph -->','',$tag_str);
+        $temp_string_store .= $tag_str;
+      
+        
+        return $temp_string_store;
+    }
+    
+
+ }
+
+
+ /**
+     * Convert headings tags to gutenberg block with style,id and custom attributes
+     * @param string $seperator
+     * @param string $content
+     * @param string $level
+     */
+    function ccetgb_convert_heading_tags($seperator='',$content='',$level=''){
+        
+        $exp_separator = "<".$seperator;
+        $str = explode($exp_separator,$content);
+        $i = 0;
+        $tags = array();
+        foreach ( $str as $s ) {
+                if($s !== '' ) {
+                $tags[$i] = $exp_separator.$s;
+                }
+                $i++;    
+        }
+        $temp_string_store = '';
+        print_r($tags);
+        exit;
+            foreach($tags as $tag){
+               $i = 0;
+
+        if(strpos($tag,'<h')!==false){        
+        $tag_str = preg_replace("/<([a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<$1$2>', $tag);   
+        $tag_str = str_replace("<".$seperator.">", '<!-- wp:heading {"level":'.$level.'} -->'.'<'.$seperator.'>', $tag_str);
+        $tag_str = str_replace("</".$seperator.">", '</'.$seperator.'><!-- /wp:heading -->',$tag_str);
+        $temp_string_store .= $tag_str;
+        }else{
+            $temp_string_store .= $tag; 
+        }
+            
+           
+        }
+            
+            return $temp_string_store;
+    }
+
+
     /**
      * Convert classic element to block
      * @param string $content
@@ -300,13 +444,26 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<iframe') !== false) {
-                    $content = str_replace('<iframe', '<!-- wp:html --> <iframe', $content);
-                    $content = str_replace('</iframe>', '</iframe><!-- /wp:html -->', $content);
+                    $content = str_replace('<p>','',$content);
+                    $content = str_replace('</p>','',$content); 
+                    $return_content = self::ccetgb_convert_iframe($content);
+                    $start = '<iframe';
+                    $end = '</iframe>';
+                    $pattern = sprintf('/%s(.+?)%s/ims',preg_quote($start, '/'), preg_quote($end, '/'));
+                    if (preg_match($pattern, $content, $matches)) {
+                        list(, $match) = $matches;
+                       
+                    }
+                    $content = str_replace('<iframe'.$match.'</iframe>',$return_content,$content);
+                    $content = str_replace('<p>','',$content);
+                    $content = str_replace('</p>','',$content); 
+                    $content = str_replace('<!-- wp:paragraph --> <p>','',$content);
+                    $content = str_replace('</p><!-- /wp:paragraph -->','',$content);
                 }
 
                 if (strpos($content, '<p') !== false) {
-                    $content = str_replace('<p', '<!-- wp:paragraph --> <p', $content);
-                    $content = str_replace('</p>', '</p><!-- /wp:paragraph -->', $content);
+                    $content = preg_replace("/<p( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
+                    $content = preg_replace("/<\/p>/i",'</p><!-- /wp:paragraph -->', $content);    
                 }
 
                 if (strpos($content, '<pre') !== false) {
@@ -314,29 +471,29 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = str_replace('</pre>', '</p><!-- /wp:preformatted -->', $content);
                 }
 
-                if (strpos($content, '<h1') !== false) {
-                    $content = str_replace('<h1', '<!-- wp:heading {"level":1} --><h1', $content);
-                    $content = str_replace("</h1>", '</h1><!-- /wp:heading -->', $content);
+                if (strpos($content, '<h1') !== false) {                    
+                    $content = preg_replace("/<h1( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
+                    $content = preg_replace("/<\/h1>/i",'</h1><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h2') !== false) {
-                    $content = str_replace('<h2', '<!-- wp:heading --><h2', $content);
-                    $content = str_replace("</h2>", '</h2><!-- /wp:heading -->', $content);
+                    $content = preg_replace("/<h2( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading --><h2>', $content);
+                    $content = preg_replace("/<\/h2>/i",'</h2><!-- /wp:heading -->', $content);                                       
                 }
-                if (strpos($content, '<h3') !== false) {
-                    $content = str_replace('<h3', '<!-- wp:heading {"level":3} --><h3', $content);
-                    $content = str_replace("</h3>", '</h3><!-- /wp:heading -->', $content);
+                if (strpos($content, '<h3') !== false) {                    
+                    $content = preg_replace("/<h3( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":3} --><h3>', $content);
+                    $content = preg_replace("/<\/h3>/i",'</h1><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h4') !== false) {
-                    $content = str_replace('<h4', '<!-- wp:heading {"level":4} --><h4', $content);
-                    $content = str_replace("</h4>", '</h4><!-- /wp:heading -->', $content);
+                    $content = preg_replace("/<h4( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":4} --><h4>', $content);
+                    $content = preg_replace("/<\/h4>/i",'</h4><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h5') !== false) {
-                    $content = str_replace('<h5', '<!-- wp:heading {"level":5} --><h5', $content);
-                    $content = str_replace("</h5>", '</h5><!-- /wp:heading -->', $content);
+                    $content = preg_replace("/<h5( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":5} --><h5>', $content);
+                    $content = preg_replace("/<\/h5>/i",'</h5><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h6') !== false) {
-                    $content = str_replace('<h6', '<!-- wp:heading {"level":6} --><h6', $content);
-                    $content = str_replace("</h6>", '</h6><!-- /wp:heading -->', $content);
+                    $content = preg_replace("/<h6( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":6} --><h6>', $content);
+                    $content = preg_replace("/<\/h6>/i",'</h6><!-- /wp:heading -->', $content);
                 }
                 if (strpos($content, '<ul') !== false) {
                     $content = str_replace('<ul', '<!-- wp:list --><ul', $content);
@@ -350,8 +507,13 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = str_replace('</table>', '</table><!-- /wp:html -->', $content);
                 }
                 if (strpos($content, '[') !== false && strpos($content, ']') !== false) {
-                    $content = preg_replace('/\[ ?/', '<!-- wp:shortcode -->[', $content);
-                    $content = preg_replace('/]/', ']<!-- /wp:shortcode -->', $content);
+                    $special_chr_start = htmlentities('<!-- wp:shortcode -->[');
+                    $special_chr_end = htmlentities(']<!-- /wp:shortcode -->');
+                    $content =  str_replace('[',$special_chr_start,$content);
+                    $content = str_replace(']',$special_chr_end,$content);
+                    $content = html_entity_decode($content);
+                    $content = str_replace('<!-- wp:paragraph --> <p>','',$content);
+                    $content = str_replace('</p><!-- /wp:paragraph -->','',$content); 
                 }
                 if (strpos($content, '<blockquote') !== false) {
                     $content = str_replace('<blockquote', '<!-- wp:quote --><blockquote class="wp-block-quote"><p>', $content);
@@ -362,6 +524,8 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<img') !== false) {
+
+                   
                     $regex = '/src="([^"]*)"/';
                     // we want all matches
 
@@ -377,7 +541,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $image_urls = $img_path;
 
                     preg_match_all('/<img[^>]*?(\/?)>/i', $content, $results);
-
+                   
                     $a1 = $results[0];
                     $a2 = $image_urls;
                     $image_urls = array_combine($a1, $a2);
@@ -420,12 +584,35 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
             'post_mime_type' => $type,
         );
 
+        $media_page = self::ccetgb_get_attachment_url_by_slug(basename($image));
+        
+        if(!empty($media_page) && $media_page->ID!=='' && $media_page->ID!=='0'){
+            return $media_page->ID;
+        }else{
         $attach_id = wp_insert_attachment($attachment, $mirror['file'], $parent_id);
         $attach_data = wp_generate_attachment_metadata($attach_id, $mirror['file']);
         wp_update_attachment_metadata($attach_id, $attach_data);
+        }
 
         return $attach_id;
     }
+
+    /**
+     * Find image is exist in media
+     * @param string $slug
+     * @return array|bool
+     */
+    function ccetgb_get_attachment_url_by_slug( $slug ) {
+        $args = array(
+          'post_type' => 'attachment',
+          'name' => sanitize_title($slug),
+          'posts_per_page' => 1,
+          'post_status' => 'inherit',
+        );
+        $_header = get_posts( $args );
+        $header = $_header ? array_pop($_header) : null;
+        return $header;
+      }
 
     /**
      * @param string $content
