@@ -462,8 +462,16 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<p') !== false) {
+                    $content = preg_replace("/<p>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<p( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<\/p>/i",'</p><!-- /wp:paragraph -->', $content);    
+                }
+
+                if (strpos($content, '<span') !== false) {
+                   
+                    $content = preg_replace("/<span>/i",'<!-- wp:paragraph --> <p>', $content);
+                    $content = preg_replace("/<span( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
+                    $content = preg_replace("/<\/span>/i",'</p><!-- /wp:paragraph -->', $content);    
                 }
 
                 if (strpos($content, '<pre') !== false) {
@@ -472,26 +480,33 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<h1') !== false) {                    
+                    
+                    $content = preg_replace("/<h1>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
                     $content = preg_replace("/<h1( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
                     $content = preg_replace("/<\/h1>/i",'</h1><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h2') !== false) {
+                    $content = preg_replace("/<h2>/i",'<!-- wp:heading {"level":2} --><h2>', $content);
                     $content = preg_replace("/<h2( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading --><h2>', $content);
                     $content = preg_replace("/<\/h2>/i",'</h2><!-- /wp:heading -->', $content);                                       
                 }
-                if (strpos($content, '<h3') !== false) {                    
+                if (strpos($content, '<h3') !== false) {
+                    $content = preg_replace("/<h3>/i",'<!-- wp:heading {"level":3} --><h3>', $content);                    
                     $content = preg_replace("/<h3( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":3} --><h3>', $content);
                     $content = preg_replace("/<\/h3>/i",'</h1><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h4') !== false) {
+                    $content = preg_replace("/<h4>/i",'<!-- wp:heading {"level":4} --><h4>', $content); 
                     $content = preg_replace("/<h4( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":4} --><h4>', $content);
                     $content = preg_replace("/<\/h4>/i",'</h4><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h5') !== false) {
+                    $content = preg_replace("/<h5>/i",'<!-- wp:heading {"level":5} --><h5>', $content); 
                     $content = preg_replace("/<h5( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":5} --><h5>', $content);
                     $content = preg_replace("/<\/h5>/i",'</h5><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h6') !== false) {
+                    $content = preg_replace("/<h6>/i",'<!-- wp:heading {"level":6} --><h6>', $content); 
                     $content = preg_replace("/<h6( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":6} --><h6>', $content);
                     $content = preg_replace("/<\/h6>/i",'</h6><!-- /wp:heading -->', $content);
                 }
