@@ -19,7 +19,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
     }
 
     /**
-     * Create new post as a draft mode
+     * Create new post as a draft mode with post fix "with GB"
      */
     public static function ccetgb_copy_as_new_draft()
     {
