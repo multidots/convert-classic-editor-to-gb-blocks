@@ -103,7 +103,7 @@ class CCETGB_Admin_Settings {
 
         global $post, $wp_admin_bar;
         if ( isset( $post ) && ! ( strpos( $post->post_content, "<!-- wp:" ) === false ) ){
-            return;
+          return;
         }
 
         $queried_object = get_queried_object();

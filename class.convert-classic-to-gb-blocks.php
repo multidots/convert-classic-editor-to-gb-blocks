@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 Class CCETGB_Convert_Classic_to_GB_Blocks {
-
+    
     /**
      * Adding WordPress hook
      */
@@ -93,7 +93,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * Get src attribute of given tag string
      * @param string $string
      */
-    function ccetgb_get_src_value($string=''){
+    public static function ccetgb_get_src_value($string=''){
         preg_match('/src="(.+?)"/', $string, $input);
         return $input[1];
     }
@@ -101,7 +101,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * get iframe content and convert it to respective embed blocks
      * @param string $content
      */
- function ccetgb_convert_iframe($content=''){
+    public static function ccetgb_convert_iframe($content=''){
         $src = self::ccetgb_get_src_value($content);
         $embed_provider = self::ccetgb_filter_iframeProvider($src);
         $convert_content = self::ccetgb_convert_provider($embed_provider,$content);
@@ -111,7 +111,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * get iframe src and find provider and other details
      * @param string $src
      */
- function ccetgb_filter_iframeProvider($src=''){
+    public static function ccetgb_filter_iframeProvider($src=''){
     $provider = '';
     $type = '';
     $provider_slug = '';
@@ -173,7 +173,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * @param array $embed_provider
      * @param string $content
      */
- function ccetgb_convert_provider($embed_provider=array(),$content=''){
+    public static function ccetgb_convert_provider($embed_provider=array(),$content=''){
 
     if(!empty($embed_provider)){
         
@@ -198,7 +198,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * @param string $content
      * @param string $level
      */
-    function ccetgb_convert_heading_tags($seperator='',$content='',$level=''){
+    public static function ccetgb_convert_heading_tags($seperator='',$content='',$level=''){
         
         $exp_separator = "<".$seperator;
         $str = explode($exp_separator,$content);
@@ -211,8 +211,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 $i++;    
         }
         $temp_string_store = '';
-        print_r($tags);
-        exit;
+        
             foreach($tags as $tag){
                $i = 0;
 
@@ -420,7 +419,8 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = $contentArr[0];
                 }
                 if (strpos($content, '<div') !== false) {
-                    $content = str_replace('</div>', '</div><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
+                 $content = preg_replace("/<div( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<div class="wp-block-md-multipurpose-gutenberg-block is-block-center">', $content);
+                 $content = str_replace('</div>', '</div><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
                 }
 
                 if (strpos($content, '<section') !== false) {
@@ -468,19 +468,18 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<span') !== false) {
-                   
                     $content = preg_replace("/<span>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<span( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<\/span>/i",'</p><!-- /wp:paragraph -->', $content);    
                 }
 
                 if (strpos($content, '<pre') !== false) {
-                    $content = str_replace('<pre', '<!-- wp:preformatted --> <pre', $content);
-                    $content = str_replace('</pre>', '</p><!-- /wp:preformatted -->', $content);
+                    $content = preg_replace("/<pre( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:preformatted --> <pre class="wp-block-preformatted">', $content);
+                    $content = preg_replace("/<pre>/i",'<!-- wp:preformatted --> <pre class="wp-block-preformatted">', $content);
+                    $content = preg_replace("/<\/pre>/i",'</pre><!-- /wp:preformatted -->', $content); 
                 }
 
                 if (strpos($content, '<h1') !== false) {                    
-                    
                     $content = preg_replace("/<h1>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
                     $content = preg_replace("/<h1( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
                     $content = preg_replace("/<\/h1>/i",'</h1><!-- /wp:heading -->', $content);                   
@@ -559,11 +558,17 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                    
                     $a1 = $results[0];
                     $a2 = $image_urls;
-                    $image_urls = array_combine($a1, $a2);
+                  
+                    $min = min(count($a1), count($a2));
+                    $image_urls = array_combine(array_slice($a1, 0, $min), array_slice($a2, 0, $min));
                     foreach ($image_urls as $image_url => $value) {
                         $alt = !empty($img_src_alt_arr[$value]) ? $img_src_alt_arr[$value] : '-';
                         $img_id = self::ccetgb_upload_remote_image_attach($value, $post_id);
-                        $content = preg_replace($image_url, '!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . esc_url($value) . '" alt="' . esc_attr($alt) . '" class="wp-image-' . esc_attr($img_id) . '"/></figure><!-- /wp:image --', $content);
+                        $content = str_replace('<p>','',$content);
+                        $content = str_replace('</p>','',$content);
+                        $content = str_replace('<!-- wp:paragraph -->','',$content);
+                        $content = str_replace('<!-- /wp:paragraph -->','',$content);
+                        $content = preg_replace($image_url, '<!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . esc_url($value) . '" alt="' . esc_attr($alt) . '" class="wp-image-' . esc_attr($img_id) . '"/></figure><!-- /wp:image -->', $content);
                     }
                 }
 
@@ -617,7 +622,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * @param string $slug
      * @return array|bool
      */
-    function ccetgb_get_attachment_url_by_slug( $slug ) {
+    public static function ccetgb_get_attachment_url_by_slug( $slug ) {
         $args = array(
           'post_type' => 'attachment',
           'name' => sanitize_title($slug),
