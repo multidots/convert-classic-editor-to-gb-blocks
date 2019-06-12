@@ -102,11 +102,38 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      * @param string $content
      */
     public static function ccetgb_convert_iframe($content=''){
-        $src = self::ccetgb_get_src_value($content);
-        $embed_provider = self::ccetgb_filter_iframeProvider($src);
-        $convert_content = self::ccetgb_convert_provider($embed_provider,$content);
-       return $convert_content;
- }
+
+        $exp_separator = "<iframe";
+        $str = explode($exp_separator,$content);
+        $i = 0;
+        $tags = array();
+        foreach ( $str as $s ) {
+                if($s !== '' ) {
+                $tags[$i] = $exp_separator.$s;
+                }
+                $i++;    
+        }
+       
+        $convert_content = '';
+        $final_content = '';
+        $match = '';
+            foreach($tags as $tag){
+            
+                $src = self::ccetgb_get_src_value($tag);
+                $embed_provider = self::ccetgb_filter_iframeProvider($src);
+                $convert_content .= self::ccetgb_convert_provider($embed_provider,$tag);
+                $start = '<iframe';
+                    $end = '</iframe>';
+                    $pattern = sprintf('/%s(.+?)%s/ims',preg_quote($start, '/'), preg_quote($end, '/'));
+                    if (preg_match($pattern, $tag, $matches)) {
+                        list(, $match) = $matches;
+                       
+                    }
+                    $final_content = str_replace(strval($tag),$convert_content,$content);
+        }
+        
+        return $final_content;
+    }
     /**
      * get iframe src and find provider and other details
      * @param string $src
@@ -117,21 +144,18 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
     $provider_slug = '';
   
     $result = [];
-   if($src!==''){
+   if( '' !== $src ) {
     
     if(strpos($src,"youtube")){
         $provider = 'youtube'; 
         $type = 'video';
         $src = str_replace("embed/","watch?v=",$src);
         $provider_slug = 'youtube';
-       
-       
     }elseif(strpos($src,"vimeo")){
          $provider = 'vimeo';
          $type = 'video';
          $src = str_replace("player.vimeo.com/video/","vimeo.com/",$src);
          $provider_slug = 'vimeo';
-    
     }elseif(strpos($src,"facebook")){
          $provider = 'facebook';
          $type = 'rich';
@@ -150,21 +174,18 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
         $src = str_replace("embed/","",$src);
         $src = rawurldecode($src);
         $provider_slug = 'dailymotion';
-
    }else{
         $provider = 'wordpress';
         $type = 'wp-embed';
         $src = rawurldecode($src);
         $provider_slug = 'plugin-directory';
-        
    }
-
         $result['type'] = $type; 
         $result['provider'] = $provider;
         $result['src'] = $src;
         $result['provider-slug'] = $provider_slug;
 
-   return $result;
+        return $result;
     
  }
 }
@@ -175,13 +196,13 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
      */
     public static function ccetgb_convert_provider($embed_provider=array(),$content=''){
 
+
     if(!empty($embed_provider)){
         
         $temp_string_store = '';
         $tag_str = '<!-- wp:core-embed/'.$embed_provider['provider'].' {"url":"'.$embed_provider['src'].'","type":"'.$embed_provider['type'].'","providerNameSlug":"'.$embed_provider['provider-slug'].'","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --><figure class="wp-block-embed-'.$embed_provider['provider'].' wp-block-embed is-type-'.$embed_provider['type'].' is-provider-'.$embed_provider['provider-slug'].' is-is-provider-'.$embed_provider['provider-slug'].' provider-'.$embed_provider['provider'].' wp-embed-aspect-16-9 wp-has-aspect-ratio">
         <div class="wp-block-embed__wrapper">'.$embed_provider['src'].' </div> </figure><!-- /wp:core-embed/'.$embed_provider['provider'].' -->';
-        $tag_str = str_replace('<!-- wp:paragraph --> <p>','',$tag_str);
-        $tag_str = str_replace('</p><!-- /wp:paragraph -->','',$tag_str);
+       
         $temp_string_store .= $tag_str;
       
         
@@ -191,47 +212,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
 
  }
 
-
  /**
-     * Convert headings tags to gutenberg block with style,id and custom attributes
-     * @param string $seperator
-     * @param string $content
-     * @param string $level
-     */
-    public static function ccetgb_convert_heading_tags($seperator='',$content='',$level=''){
-        
-        $exp_separator = "<".$seperator;
-        $str = explode($exp_separator,$content);
-        $i = 0;
-        $tags = array();
-        foreach ( $str as $s ) {
-                if($s !== '' ) {
-                $tags[$i] = $exp_separator.$s;
-                }
-                $i++;    
-        }
-        $temp_string_store = '';
-        
-            foreach($tags as $tag){
-               $i = 0;
-
-        if(strpos($tag,'<h')!==false){        
-        $tag_str = preg_replace("/<([a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<$1$2>', $tag);   
-        $tag_str = str_replace("<".$seperator.">", '<!-- wp:heading {"level":'.$level.'} -->'.'<'.$seperator.'>', $tag_str);
-        $tag_str = str_replace("</".$seperator.">", '</'.$seperator.'><!-- /wp:heading -->',$tag_str);
-        $temp_string_store .= $tag_str;
-        }else{
-            $temp_string_store .= $tag; 
-        }
-            
-           
-        }
-            
-            return $temp_string_store;
-    }
-
-
-    /**
      * Convert classic element to block
      * @param string $content
      * @param int $post_id
@@ -245,23 +226,16 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
         }
 
         if (!empty($content) && 0 !== $post_id) {
-
+            
             $short_code_arr = self::ccetgb_is_shortcode_in_content($content);
 
             if (strpos($content, '<!-- wp:') === false) {
-
-                if (strpos($content, '&lt;p&gt;') === false && strpos($content, "<p" === false)) {
-                    $content = wpautop($content, false);
-                } else {
-                    $content = wpautop($content, false);
-                }
-
+                
                 $dom = new DOMDocument(null, 'UTF-8');
                 $dom->encoding = 'utf-8';
                 libxml_use_internal_errors(true);
                 $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
                 $dom->encoding = 'utf-8';
-
                 // Section tag Dom Manuplation
                 $sections = $dom->getElementsByTagName('section');
                 foreach ($sections as $section) {
@@ -276,7 +250,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
                 $dom->encoding = 'utf-8';
                 unset($sections);
-
+                
                 // Header tag Dom Manuplation
                 $headers = $dom->getElementsByTagName('header');
                 foreach ($headers as $header) {
@@ -292,7 +266,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
                 $dom->encoding = 'utf-8';
                 unset($headers);
-
+                
                 $img_array = $dom->getElementsByTagName('img');
                 $img_src_alt_arr = [];
                 foreach ($img_array as $img) {
@@ -302,7 +276,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                         $img_src_alt_arr[$src] = $alt;
                     }
                 }
-
+                
                 $divs = $dom->getElementsByTagName('div');
                 foreach ($divs as $div) {
                     $dclass = $div->getAttribute('class');
@@ -322,9 +296,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                         $nodeValue = $childNode->nodeValue;
                         $childNodes = $childNode->childNodes;
                         $value = trim($childNode->nodeValue);
-
-
-                        if (!empty($short_code_arr[0])) {
+                    if (!empty($short_code_arr[0])) {
                             $is = array_search($value, $short_code_arr[0], true);
                             if ($is !== false) {
                                 continue;
@@ -377,6 +349,7 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                             $div->replaceChild($element, $childNode);
                             $element->appendChild($childNode);
                         }
+
                     }
 
                     if (!empty($dclass)) {
@@ -384,7 +357,9 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     } else {
                         $classToAdd = 'wp-block-md-multipurpose-gutenberg-block is-block-center';
                     }
-
+                    foreach ($div->attributes as $attr => $val) {
+                        $div->removeAttribute($attr);
+                    } 
                     $div->setAttribute('class', $classToAdd);
 
                     if (!empty($div_id)) {
@@ -395,21 +370,30 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $div->parentNode->insertBefore($comment, $div);
                 }
 
+               
+
                 $content = $dom->saveHTML();
+
+                $body = $dom->getElementsByTagName('body');
+                
+                foreach ($body as $b) {
+                   
+                   foreach($b->childNodes as $ch){
+                    
+                       if($ch->nodeName=='#text' && !empty(trim($ch->nodeValue))){
+                        $p = $dom->createElement('p', htmlspecialchars(trim($ch->textContent)));
+                        $ch->parentNode->replaceChild($p, $ch);
+                       }
+                   }
+                }
+
+                $content = $dom->saveHTML();
+
+                
 
                 $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
                 $dom->encoding = 'utf-8';
                 unset($divs);
-
-                // Table tag Dom Manuplation Table tag converted to the classic table
-                $tables = $dom->getElementsByTagName('table');
-                foreach ($tables as $table) {
-                    $sclass = $table->getAttribute('class');
-                    $comment = $dom->createComment(' wp:html ');
-                    $table->parentNode->insertBefore($comment, $table);
-                    $table->setAttribute('class', $classToAdd);
-                }
-                $content = $dom->saveHTML();
 
                 $contentArr = explode('<body>', $content);
 
@@ -419,7 +403,6 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = $contentArr[0];
                 }
                 if (strpos($content, '<div') !== false) {
-                 $content = preg_replace("/<div( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<div class="wp-block-md-multipurpose-gutenberg-block is-block-center">', $content);
                  $content = str_replace('</div>', '</div><!-- /wp:md/multipurpose-gutenberg-block -->', $content);
                 }
 
@@ -444,8 +427,6 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<iframe') !== false) {
-                    $content = str_replace('<p>','',$content);
-                    $content = str_replace('</p>','',$content); 
                     $return_content = self::ccetgb_convert_iframe($content);
                     $start = '<iframe';
                     $end = '</iframe>';
@@ -454,22 +435,23 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                         list(, $match) = $matches;
                        
                     }
-                    $content = str_replace('<iframe'.$match.'</iframe>',$return_content,$content);
-                    $content = str_replace('<p>','',$content);
-                    $content = str_replace('</p>','',$content); 
-                    $content = str_replace('<!-- wp:paragraph --> <p>','',$content);
-                    $content = str_replace('</p><!-- /wp:paragraph -->','',$content);
+                   
+                    $content = $return_content;
+                    $content =  preg_replace("/<iframe(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'', $content);
+                    $content =  preg_replace("/<\/iframe>/i",'', $content);
+
+                    
                 }
 
                 if (strpos($content, '<p') !== false) {
-                    $content = preg_replace("/<p>/i",'<!-- wp:paragraph --> <p>', $content);
-                    $content = preg_replace("/<p( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
+                    $content = preg_replace("/<p(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<\/p>/i",'</p><!-- /wp:paragraph -->', $content);    
                 }
 
+               
+
                 if (strpos($content, '<span') !== false) {
-                    $content = preg_replace("/<span>/i",'<!-- wp:paragraph --> <p>', $content);
-                    $content = preg_replace("/<span( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:paragraph --> <p>', $content);
+                    $content = preg_replace("/<span(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:paragraph --> <p>', $content);
                     $content = preg_replace("/<\/span>/i",'</p><!-- /wp:paragraph -->', $content);    
                 }
 
@@ -480,33 +462,28 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                 }
 
                 if (strpos($content, '<h1') !== false) {                    
-                    $content = preg_replace("/<h1>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
-                    $content = preg_replace("/<h1( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
+                    $content = preg_replace("/<h1(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading {"level":1} --><h1>', $content);
                     $content = preg_replace("/<\/h1>/i",'</h1><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h2') !== false) {
-                    $content = preg_replace("/<h2>/i",'<!-- wp:heading {"level":2} --><h2>', $content);
-                    $content = preg_replace("/<h2( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading --><h2>', $content);
-                    $content = preg_replace("/<\/h2>/i",'</h2><!-- /wp:heading -->', $content);                                       
+                    $content = preg_replace("/<h2(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading --><h2>', $content);
+                    $content = preg_replace("/<\/h2>/i",'</h2><!-- /wp:heading -->', $content);
+                                                         
                 }
                 if (strpos($content, '<h3') !== false) {
-                    $content = preg_replace("/<h3>/i",'<!-- wp:heading {"level":3} --><h3>', $content);                    
-                    $content = preg_replace("/<h3( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":3} --><h3>', $content);
-                    $content = preg_replace("/<\/h3>/i",'</h1><!-- /wp:heading -->', $content);                   
+                    $content = preg_replace("/<h3(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading {"level":3} --><h3>', $content);
+                    $content = preg_replace("/<\/h3>/i",'</h3><!-- /wp:heading -->', $content);                   
                 }
                 if (strpos($content, '<h4') !== false) {
-                    $content = preg_replace("/<h4>/i",'<!-- wp:heading {"level":4} --><h4>', $content); 
-                    $content = preg_replace("/<h4( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":4} --><h4>', $content);
+                    $content = preg_replace("/<h4(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading {"level":4} --><h4>', $content);
                     $content = preg_replace("/<\/h4>/i",'</h4><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h5') !== false) {
-                    $content = preg_replace("/<h5>/i",'<!-- wp:heading {"level":5} --><h5>', $content); 
-                    $content = preg_replace("/<h5( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":5} --><h5>', $content);
+                    $content = preg_replace("/<h5(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading {"level":5} --><h5>', $content);
                     $content = preg_replace("/<\/h5>/i",'</h5><!-- /wp:heading -->', $content); 
                 }
                 if (strpos($content, '<h6') !== false) {
-                    $content = preg_replace("/<h6>/i",'<!-- wp:heading {"level":6} --><h6>', $content); 
-                    $content = preg_replace("/<h6( [a-z][a-z0-9]*)[^>]*?(\/?)>/i",'<!-- wp:heading {"level":6} --><h6>', $content);
+                    $content = preg_replace("/<h6(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i",'<!-- wp:heading {"level":6} --><h6>', $content);
                     $content = preg_replace("/<\/h6>/i",'</h6><!-- /wp:heading -->', $content);
                 }
                 if (strpos($content, '<ul') !== false) {
@@ -517,9 +494,14 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = str_replace('<ol', '<!-- wp:list --><ul', $content);
                     $content = str_replace("</ol>", '</ul><!-- /wp:list -->', $content);
                 }
-                if (strpos($content, '</table>') !== false) {
-                    $content = str_replace('</table>', '</table><!-- /wp:html -->', $content);
+                if (strpos($content, '<table') !== false) {
+                    $content = preg_replace('/<table(|( [a-z][a-z0-9]*)[^>]*?(\/?))>/i', '<!-- wp:html --><table>', $content);
+                    $content = preg_replace("/<\/table>/i",'</table><!-- /wp:html -->', $content);
+                    
                 }
+
+                
+                
                 if (strpos($content, '[') !== false && strpos($content, ']') !== false) {
                     $special_chr_start = htmlentities('<!-- wp:shortcode -->[');
                     $special_chr_end = htmlentities(']<!-- /wp:shortcode -->');
@@ -530,13 +512,47 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     $content = str_replace('</p><!-- /wp:paragraph -->','',$content); 
                 }
                 if (strpos($content, '<blockquote') !== false) {
-                    $content = str_replace('<blockquote', '<!-- wp:quote --><blockquote class="wp-block-quote"><p>', $content);
-                    $content = str_replace("</blockquote>", '</p></blockquote><!-- /wp:quote -->', $content);
-                }
+                    $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
+                    $dom->encoding = 'utf-8';
+                    
+                   $blockquotes = $dom->getElementsByTagName('blockquote');
+                    foreach ($blockquotes as $blockquote) {
+                        $bclass = $blockquote->getAttribute('class');
+                        $blockquote_id = $blockquote->getAttribute('id');
+                        $value = $blockquote->nodeValue;
+                        $childNodes = $blockquote->childNodes;
+                        foreach ( $childNodes as $ch ) {
+                            $ch->parentNode->removeChild($ch);
+                           
+                        }
+                        $blockquote->nodeValue = '<p>'.$value.'</p>'; 
+                        if (!empty($dclass)) {
+                            $classToAdd = 'wp-block-quote ' . $bclass;
+                        } else {
+                            $classToAdd = 'wp-block-quote';
+                        }
+                        foreach ($blockquote->attributes as $attr => $val) {
+                            $blockquote->removeAttribute($attr);
+                        } 
+                        $blockquote->setAttribute('class', $classToAdd);
+                        $comment = $dom->createComment(' wp:quote ');
+                        
+                        $blockquote->parentNode->insertBefore($comment, $blockquote);
+                    }
+                    $content = $dom->saveHTML();
+                    $content = str_replace('&lt;','<',$content);
+                    $content = str_replace('&gt;','>',$content);
+                    $content = str_replace('</body>','',$content);
+                    $content = str_replace('</html>','',$content);
+                    
+                    $content = str_replace('</blockquote>','</blockquote><!-- /wp:quote -->',$content);
+                   
+                  }
+                  
                 if (strpos($content, '<hr') !== false) {
                     $content = preg_replace('/<hr[^>]*?(\/?)>/i', '<!-- wp:separator --><hr class="wp-block-separator"/><!-- /wp:separator -->', $content);
                 }
-
+               
                 if (strpos($content, '<img') !== false) {
 
                    
@@ -564,14 +580,16 @@ Class CCETGB_Convert_Classic_to_GB_Blocks {
                     foreach ($image_urls as $image_url => $value) {
                         $alt = !empty($img_src_alt_arr[$value]) ? $img_src_alt_arr[$value] : '-';
                         $img_id = self::ccetgb_upload_remote_image_attach($value, $post_id);
-                        $content = str_replace('<p>','',$content);
-                        $content = str_replace('</p>','',$content);
-                        $content = str_replace('<!-- wp:paragraph -->','',$content);
-                        $content = str_replace('<!-- /wp:paragraph -->','',$content);
-                        $content = preg_replace($image_url, '<!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . esc_url($value) . '" alt="' . esc_attr($alt) . '" class="wp-image-' . esc_attr($img_id) . '"/></figure><!-- /wp:image -->', $content);
+                        $content = preg_replace($image_url, '!-- wp:image {"id":' . $img_id . '} --><figure class="wp-block-image"><img src="' . esc_url($value) . '" alt="' . esc_attr($alt) . '" class="wp-image-' . esc_attr($img_id) . '"/></figure><!-- /wp:image --', $content);
+                        
                     }
+                   
                 }
-
+                $content = str_replace('<html>','',$content);
+                $content = str_replace('<body>','',$content);
+                $content = str_replace('</html>','',$content);
+                $content = str_replace('</body>','',$content);
+                
                 $post_args = array(
                     'ID' => $post_id,
                     'post_content' => $content,
