@@ -8,22 +8,19 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-class CCETGB_Convert_Classic_to_GB_Blocks
-{
+class CCETGB_Convert_Classic_to_GB_Blocks{
 
     /**
      * Adding WordPress hook
      */
-    public function __construct()
-    {
+    public function __construct(){
         add_action('admin_action_ccetgb_copy_as_new_draft', array(__CLASS__, 'ccetgb_copy_as_new_draft'));
     }
 
     /**
      * Create new post as a draft mode
      */
-    public static function ccetgb_copy_as_new_draft()
-    {
+    public static function ccetgb_copy_as_new_draft(){
 
         $copy_get_id = filter_input(INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT);
         $copy_post_id = filter_input(INPUT_POST, 'post', FILTER_SANITIZE_NUMBER_INT);
@@ -89,8 +86,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
         }
     }
 
-    public static function ccegbt_wrap_childNodes($tag = array(), $dom = '', $element = '')
-    {
+    public static function ccegbt_wrap_childNodes($tag = array(), $dom = '', $element = ''){
         $childNodes = $tag->childNodes;
         foreach ($childNodes as $childNode) {
             // Div has direct text then that text conver to p tag
@@ -150,8 +146,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * remove custom attributes and add class and id attributes to headings tags
      * @param string $string
      */
-    public static function ccetgb_heading_add_class_id_attr($content = '', $tag = '', $level = '')
-    {
+    public static function ccetgb_heading_add_class_id_attr($content = '', $tag = '', $level = ''){
         if ('' !== $tag) {
 
             $dom = new DOMDocument(null, 'UTF-8');
@@ -192,8 +187,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * remove custom attributes and add class attributes to elements
      * @param string $string
      */
-    public static function ccetgb_add_class_id_attr($content = '', $htmlTag = '', $namespace = '', $preClass = '')
-    {
+    public static function ccetgb_add_class_id_attr($content = '', $htmlTag = '', $namespace = '', $preClass = ''){
         if ('' !== $htmlTag) {
             $dom = new DOMDocument(null, 'UTF-8');
             $dom->encoding = 'utf-8';
@@ -246,8 +240,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * Get src attribute of given tag string
      * @param string $string
      */
-    public static function ccetgb_get_src_value($string = '')
-    {
+    public static function ccetgb_get_src_value($string = ''){
         preg_match('/src="(.+?)"/', $string, $input);
         return $input[1];
     }
@@ -256,8 +249,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * Get class attribute of given tag string
      * @param string $string
      */
-    public static function ccetgb_get_class_value($string = '')
-    {
+    public static function ccetgb_get_class_value($string = ''){
         preg_match('/class="(.+?)"/', $string, $input);
         return $input[1];
     }
@@ -266,8 +258,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * get iframe src and find provider and other details
      * @param string $src
      */
-    public static function ccetgb_filter_iframeProvider($src = '')
-    {
+    public static function ccetgb_filter_iframeProvider($src = ''){
         $provider = '';
         $type = '';
         $provider_slug = '';
@@ -323,8 +314,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * @param array $embed_provider
      * @param string $content
      */
-    public static function ccetgb_convert_provider($embed_provider = array(), $content = '', $class = '')
-    {
+    public static function ccetgb_convert_provider($embed_provider = array(), $content = '', $class = ''){
         if (!empty($embed_provider)) {
             $temp_string_store = '';
             $tag_str = '<!-- wp:core-embed/' . $embed_provider['provider'] . ' {"url":"' . $embed_provider['src'] . '","type":"' . $embed_provider['type'] . '","providerNameSlug":"' . $embed_provider['provider-slug'] . '","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio ' . $class . '"} --><figure class="wp-block-embed-' . $embed_provider['provider'] . ' wp-block-embed is-type-' . $embed_provider['type'] . ' is-provider-' . $embed_provider['provider-slug'] . ' is-is-provider-' . $embed_provider['provider-slug'] . ' provider-' . $embed_provider['provider'] . ' wp-embed-aspect-16-9 wp-has-aspect-ratio">
@@ -340,8 +330,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * @param string $content
      * @param int $post_id
      */
-    public static function ccetgb_convert_classic_post_to_gb_blocks($content = '', $post_id = 0)
-    {
+    public static function ccetgb_convert_classic_post_to_gb_blocks($content = '', $post_id = 0){
 
         if (!is_plugin_active('multipurpose-block/index.php')) {
             $error_msg = sprintf('This plugin required <a href="https://wordpress.org/plugins/multipurpose-block/">Multipurpose Gutenberg Block</a> plugin to work correctly.');
@@ -768,8 +757,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * @param int $parent_id
      * @return bool|int|WP_Error
      */
-    public static function ccetgb_upload_remote_image_attach($image_url = '', $parent_id = 0)
-    {
+    public static function ccetgb_upload_remote_image_attach($image_url = '', $parent_id = 0){
         $image = $image_url;
         $get = wp_remote_get($image);
         $type = wp_remote_retrieve_header($get, 'content-type');
@@ -801,8 +789,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * @param string $slug
      * @return array|bool
      */
-    public static function ccetgb_get_attachment_url_by_slug($slug)
-    {
+    public static function ccetgb_get_attachment_url_by_slug($slug){
         $args = array(
             'post_type' => 'attachment',
             'name' => sanitize_title($slug),
@@ -818,8 +805,7 @@ class CCETGB_Convert_Classic_to_GB_Blocks
      * @param string $content
      * @return array|bool
      */
-    public static function ccetgb_is_shortcode_in_content($content = '')
-    {
+    public static function ccetgb_is_shortcode_in_content($content = ''){
         preg_match_all('/' . get_shortcode_regex() . '/', $content, $matches, PREG_SET_ORDER);
         if (empty($matches)) {
             return false;
