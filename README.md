@@ -22,7 +22,7 @@ Download, install & activate a required plugin, Multipurpose Gutenberg Block fro
 
 ### Step 2
 
-Download, install & activate GB Script Plugin from [here](#).
+Download, install & activate GB Script Plugin from [here](https://wordpress.org/plugins/convert-classic-editor-to-blocks/).
 
 ### Step 3
 
@@ -70,8 +70,6 @@ As this plugin is free and for community’s sake only, contributions from commu
 
 ## Support 
 This repository is not for support. Please use it for GB Script core issues only. To get help/support, please email us at [help@multidots.com](mailto:help@multidots.com)
-
-Help/Support requests as issues on this repository will be closed.
 
 ## Future Planning 
 
