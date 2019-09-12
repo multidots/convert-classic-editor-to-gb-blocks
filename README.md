@@ -2,7 +2,7 @@
 
 # Convert Classic Editor to Gutenberg Blocks
 
-> **⚠️ Note:** This is a beta version of a GB Script Plugin. Use it for contributions only. Get latest version from [here](#).
+> **⚠️ Note:** This is a beta version of a GB Script Plugin. Use it for contributions only. Get latest version from [here](https://wordpress.org/plugins/convert-classic-editor-to-blocks/).
 
 
 Welcome to the GB Script Plugin repository on GitHub. Get a dive into the source, open issues and contribute! This plugin is useful to convert your Classic Editor Post/Page to Gutenberg Blocks automatically!
