@@ -28,7 +28,7 @@ if ( !defined( 'ABSPATH' ) ) {
                     <tr>
                         <td class="fr-2">
                             <p class="block gettingstarted"><strong><?php esc_html_e('Getting Started', 'convert-classic-editor-to-gutenberg-blocks'); ?></strong></p>
-                            <p class="block textgetting"><?php esc_html_e('Follow following step to convert classic editor post to gutenberg blocks.', 'convert-classic-editor-to-gutenberg-blocks'); ?></p>
+                            <p class="block textgetting"><?php esc_html_e("Follow below steps to convert classic editor post to gutenberg blocks.', 'convert-classic-editor-to-gutenberg-blocks"); ?></p>
                             <p class="block textgetting">
                                 <strong><?php esc_html_e('Step 1:', 'convert-classic-editor-to-gutenberg-blocks'); ?></strong> <?php esc_html_e('Go to post editor side and click on "Convert to Gutenberg Blocks" link which is located on the top of the screen.', 'convert-classic-editor-to-gutenberg-blocks'); ?>
                                 <span class="gettingstarted">
