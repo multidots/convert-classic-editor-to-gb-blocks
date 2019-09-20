@@ -28,13 +28,14 @@ Download, install & activate GB Script Plugin from [here](https://wordpress.org/
 
 Activating these 2 plugins will enable a new button “Convert to Gutenberg Blocks” at the top of editor screen for every Post or Page. Go to the post/page with classic editor content and click on this button.
 
-![Getting_Started_01](https://user-images.githubusercontent.com/25176325/57845846-7593fd00-77f0-11e9-8c67-53800056723c.png)
+![Classic to gutenberg-1](https://user-images.githubusercontent.com/25176325/65326942-45120480-dbd0-11e9-869c-33a8cf25ca05.png)
+
 
 ### Step 4
 
 A new clone of post/page will be created as a draft and converted into the Gutenberg Blocks.
 
-![Getting_Started_02](https://user-images.githubusercontent.com/25176325/57845868-83e21900-77f0-11e9-8308-d9c21b888deb.png)
+![converted to gutenberg blocks](https://user-images.githubusercontent.com/25176325/65326963-52c78a00-dbd0-11e9-911d-4aa0ac906350.png)
 
 ### Step 5
 
